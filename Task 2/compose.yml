@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: Mindfuel
+    ports:
+      - "8000:8000" 
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - zenquotes_network
+
+  db:
+    image: postgres:16
+    container_name: Mindfuel_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-launchpad}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Exposed on port 5433 to avoid conflict with local PostgreSQL
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - zenquotes_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  zenquotes_network:
+    driver: bridge
