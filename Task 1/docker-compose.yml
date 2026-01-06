@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  app:
+    image: zenquotes
+    container_name: zenquotes_app
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  
